@@ -1,5 +1,6 @@
 from os import environ
 from dispair import Client
+
 from handlers.fun import router
 
 client = Client(

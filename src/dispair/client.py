@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import asyncio
-from abc import abstractmethod, ABC
+
 from json import dumps
 
 from aiohttp import web, ClientSession, ClientOSError
@@ -7,81 +9,8 @@ from aiohttp.web_request import Request
 from nacl.exceptions import BadSignatureError
 from nacl.signing import VerifyKey
 
-
-class Response:
-    def __init__(self, content: str):
-        self.content = content
-
-    def json(self) -> str:
-        return dumps({
-            "type": 4,
-            "data": {
-                "tts": False,
-                "content": self.content,
-                "embeds": [],
-                "allowed_mentions": {"parse": []}
-            }
-        })
-
-
-class InteractionData:
-    id: int
-    name: str
-    resolved: dict
-    options: dict
-
-
-class Interaction:
-
-    def __init__(self, _id, application_id, _type, data, guild_id, channel_id, member, user, token):
-        self.id = _id
-        self.application_id = application_id
-        self.type = _type
-        self.data = data
-        self.guild_id = guild_id
-        self.channel_id = channel_id
-        self.member = member
-        self.user = user
-        self.token = token
-
-    @property
-    def name(self) -> str:
-        return self.data.get("name")
-
-
-class Handler(ABC):
-    name: str
-    description: str
-
-    @abstractmethod
-    async def handle(self, interaction: Interaction) -> Response:
-        raise NotImplementedError()
-
-
-class Router:
-    def __init__(self):
-        self.handlers: dict[str, Handler] = {}
-
-    def __call__(self, *args, **kwargs):
-        return self.interaction(*args, **kwargs)
-
-    def interaction(self, name: str, description: str):
-        name = name.lower()
-
-        class Handle(Handler):
-            def __init__(self):
-                self.name = name
-                self.description = description
-
-            async def handle(self, interaction):
-                return await self.function(interaction)
-
-            def __call__(self, func, *args, **kwargs):
-                self.function = func
-
-        handler = Handle()
-        self.handlers[name] = handler
-        return handler
+from .router import Router
+from .models import Handler, Response, Embed, Interaction
 
 
 class Client:
@@ -129,11 +58,14 @@ class Client:
     async def _register_handler(self, handler: Handler):
         async with self._http_session as session:
             try:
-                await session.post(
+                resp = await session.post(
                     f"https://discord.com/api/v8/applications/{self.application_id}/guilds/566407576686952480/commands",
-                    data=dumps({"name": handler.name, "description": handler.description, "options": []}),
+                    data=dumps(handler.json),
                     headers={"Authorization": f"Bot {self.bot_token}", "Content-Type": "application/json"}
                 )
+                if resp.status != 200:
+                    print(await resp.json())
+
             except ClientOSError as e:
                 print(e)
 
@@ -152,4 +84,14 @@ class Client:
         router = self._routers[0]
         handler = router.handlers.get(interaction.name)
         response = await handler.handle(interaction)
-        return response
+        if isinstance(response, Response):
+            return response
+        elif isinstance(response, (int, str)):
+            return Response(content=str(response))
+        elif isinstance(response, Embed):
+            return Response(embed=response)
+        else:
+            try:
+                return Response(content=str(response))
+            except ValueError:
+                raise ValueError(f"Cannot send type {response} as a Interaction response.")

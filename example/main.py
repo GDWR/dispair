@@ -1,14 +1,20 @@
-from os import environ
+import os
+
 from dispair import Client
+from dotenv import load_dotenv
 
-from handlers.fun import router
+from .handlers.fun import router
 
-client = Client(
-    environ.get("BOT_TOKEN"),
-    environ.get("APP_ID"),
-    environ.get("APP_PUBLIC_KEY")
-)
+def main() -> None:
+    if os.getenv("ENVIRONMENT") is None:
+        load_dotenv(dotenv_path=f'{os.getcwd()}/example/.env')
+        
+    client = Client(
+        os.getenv("BOT_TOKEN"),
+        os.getenv("APP_ID"),
+        os.getenv("APP_PUBLIC_KEY"),
+    )
 
-client.attach_router(router)
+    client.attach_router(router)
 
-client.run()
+    client.run()

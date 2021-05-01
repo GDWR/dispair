@@ -21,6 +21,10 @@ aiohttp = "^3.7.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
+python-dotenv = "^0.17.1"
+
+[tool.poetry.scripts]
+example = 'example.main:main'
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/GDWR/Dispair/issues"

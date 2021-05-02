@@ -19,10 +19,10 @@ class Client:
         self._app = web.Application()
         self._http_session = ClientSession()
         self._routers: list[Router] = []
+        self._pub_key = application_public_key
         self.interaction_endpoint = interaction_endpoint
         assert self.interaction_endpoint[0] == "/", "Interaction Endpoint must begin with /"
         self.port = port
-        self._verify_key = VerifyKey(bytes.fromhex(application_public_key))
         self.application_id = application_id
         self.bot_token = bot_token
 
@@ -34,13 +34,14 @@ class Client:
         self._routers.append(router)
 
     def run(self) -> None:
+        self._verify_key = VerifyKey(bytes.fromhex(self._pub_key))
         self._app.add_routes((web.post(self.interaction_endpoint, self._interaction),))
         web.run_app(self._app, port=self.port)
 
     async def _interaction(self, request: Request):
 
-        if not (timestamp := request.headers.get("X-Signature-Timestamp")) \
-                or not (ed25519 := request.headers.get("X-Signature-Ed25519")):
+        if (timestamp := request.headers.get("X-Signature-Timestamp")) is None \
+                or (ed25519 := request.headers.get("X-Signature-Ed25519")) is None:
             return web.Response(status=401, reason="Unauthorised")
 
         try:
@@ -71,15 +72,15 @@ class Client:
 
     async def _handle(self, payload) -> Response:
         interaction = Interaction(
-            _id=payload["id"],
-            application_id=payload["application_id"],
-            _type=payload["type"],
-            data=payload["data"],
-            guild_id=payload["guild_id"],
-            channel_id=payload["channel_id"],
-            member=payload["member"],
+            _id=payload.get("id"),
+            application_id=payload.get("application_id"),
+            _type=payload.get("type"),
+            data=payload.get("data"),
+            guild_id=payload.get("guild_id"),
+            channel_id=payload.get("channel_id"),
+            member=payload.get("member"),
             user=payload.get("user"),
-            token=payload["token"],
+            token=payload.get("token"),
         )
         router = self._routers[0]
         handler = router.handlers.get(interaction.name)

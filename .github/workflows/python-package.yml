@@ -30,4 +30,4 @@ jobs:
         poetry install
     - name: Run Tests
       run: |
-        poetry run pytest
+        poetry run pytest --timeout=60

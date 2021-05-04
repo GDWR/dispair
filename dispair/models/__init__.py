@@ -1,3 +1,4 @@
+from .colour import Colour, Colour as Color
 from .embed import Embed
 from .handler import Handler
 from .interaction import Interaction, InteractionData

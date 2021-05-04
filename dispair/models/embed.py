@@ -15,9 +15,10 @@ class Embed:
     author: dict
     fields: list[dict]
 
-    def __init__(self, title, description):
+    def __init__(self, title: str, description: str, ):
         self.title = title
         self.description = description
+
 
     def json(self) -> dict:
         return {

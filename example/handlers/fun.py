@@ -85,9 +85,9 @@ async def boolean_example(inter: Interaction, guess: bool = Option(desc="Input")
     return guess
 
 
-@router.interaction(name="UserId", description="Get the user id of a user")
-async def user_id(inter: Interaction, user: Member = Option(desc="Member to get the ID of", required=False)):
-    if user:
-        return user.id
-    else:
-        return inter.member.user["id"]
+# @router.interaction(name="UserId", description="Get the user id of a user")
+# async def user_id(inter: Interaction, user: Member = Option(desc="Member to get the ID of", required=False)):
+#     if user:
+#         return user.id
+#     else:
+#         return inter.member.user["id"]

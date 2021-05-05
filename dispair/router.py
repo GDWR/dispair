@@ -1,18 +1,23 @@
-from .models import Member, Handler
+from .models import Handler, Interaction, Member, Response
 
 
 class Router:
+    """Router for creating Interaction Handlers."""
+
     def __init__(self):
         self.handlers: dict[str, Handler] = {}
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args, **kwargs) -> Handler:
+        """Decorator to create a interaction handler."""
         return self.interaction(*args, **kwargs)
 
-    def interaction(self, name: str, description: str):
+    def interaction(self, name: str, description: str) -> Handler:
+        """Create a Interaction Handler."""
         name = name.lower()
 
         class Handle(Handler):
-            async def handle(self, interaction):
+            async def handle(self, interaction: Interaction) -> Response:
+                """Overwrite the handle method with handler's function object."""
                 options = {}
 
                 if data_options := interaction.data.get("options"):

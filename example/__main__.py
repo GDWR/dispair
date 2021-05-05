@@ -3,12 +3,13 @@ import os
 from dispair import Client
 from dotenv import load_dotenv
 
-from .handlers.fun import router
+from handlers.fun import router
+
 
 def main() -> None:
     if os.getenv("ENVIRONMENT") is None:
-        load_dotenv(dotenv_path=f'{os.getcwd()}/example/.env')
-        
+        load_dotenv(dotenv_path='.env')
+
     client = Client(
         os.getenv("BOT_TOKEN"),
         os.getenv("APP_ID"),
@@ -18,3 +19,7 @@ def main() -> None:
     client.attach_router(router)
 
     client.run()
+
+
+if __name__ == "__main__":
+    main()

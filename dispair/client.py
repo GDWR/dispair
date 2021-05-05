@@ -1,45 +1,53 @@
 from __future__ import annotations
 
 import asyncio
-
 from json import dumps
 
-from aiohttp import web, ClientSession, ClientOSError
+from aiohttp import web
 from aiohttp.web_request import Request
 from nacl.exceptions import BadSignatureError
 from nacl.signing import VerifyKey
 
+from .http_session import HttpSession
+from .models import Embed, Handler, Interaction, Response
 from .router import Router
-from .models import Handler, Response, Embed, Interaction
 
 
 class Client:
-    def __init__(self, bot_token: str, application_id: str, application_public_key: str,
-                 interaction_endpoint: str = "/interactions", port: int = 80):
+    """Dispair Client."""
+
+    def __init__(
+        self,
+        bot_token: str,
+        application_id: str,
+        application_public_key: str,
+        interaction_endpoint: str = "/interactions",
+        port: int = 80
+    ):
         self._app = web.Application()
-        self._http_session = ClientSession()
+        self._http_session = HttpSession(bot_token)
         self._routers: list[Router] = []
         self._pub_key = application_public_key
         self.interaction_endpoint = interaction_endpoint
         assert self.interaction_endpoint[0] == "/", "Interaction Endpoint must begin with /"
         self.port = port
         self.application_id = application_id
-        self.bot_token = bot_token
 
-    def attach_router(self, router: Router):
-
+    def attach_router(self, router: Router) -> None:
+        """Attach a router to the Client."""
         for handler in router.handlers.values():
             asyncio.ensure_future(self._register_handler(handler))
 
         self._routers.append(router)
 
     def run(self) -> None:
+        """Start the Dispair client."""
         self._verify_key = VerifyKey(bytes.fromhex(self._pub_key))
         self._app.add_routes((web.post(self.interaction_endpoint, self._interaction),))
         web.run_app(self._app, port=self.port)
 
-    async def _interaction(self, request: Request):
-
+    async def _interaction(self, request: Request) -> web.Response:
+        """Aiohttp endpoint handler for DiscordInteractions."""
         if (timestamp := request.headers.get("X-Signature-Timestamp")) is None \
                 or (ed25519 := request.headers.get("X-Signature-Ed25519")) is None:
             return web.Response(status=401, reason="Unauthorised")
@@ -56,21 +64,13 @@ class Client:
             response = await self._handle(payload)
             return web.Response(status=200, text=response.json(), content_type="application/json")
 
-    async def _register_handler(self, handler: Handler):
-        async with self._http_session as session:
-            try:
-                resp = await session.post(
-                    f"https://discord.com/api/v8/applications/{self.application_id}/guilds/566407576686952480/commands",
-                    data=dumps(handler.json),
-                    headers={"Authorization": f"Bot {self.bot_token}", "Content-Type": "application/json"}
-                )
-                if resp.status != 200:
-                    print(await resp.json())
+    async def _register_handler(self, handler: Handler) -> None:
+        await self._http_session.request(
+            f"https://discord.com/api/v8/applications/{self.application_id}/guilds/827628133167136768/commands",
+            json=dumps(handler.json)
+        )
 
-            except ClientOSError as e:
-                print(e)
-
-    async def _handle(self, payload) -> Response:
+    async def _handle(self, payload: dict) -> Response:
         interaction = Interaction(
             _id=payload.get("id"),
             application_id=payload.get("application_id"),

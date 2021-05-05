@@ -26,10 +26,8 @@ class ClientStub(Client):
         self.task = asyncio.create_task(_main_loop())
 
     async def kill(self):
-        await self._http_session.close()
+        await self._http_session.kill()
         self.task.cancel()
 
     async def _register_handler(self, *args, **kwargs):
         ...
-
-

@@ -1,16 +1,25 @@
 from .member import Member
 
 
-class InteractionData:
-    id: int
-    name: str
-    resolved: dict
-    options: dict
-
-
 class Interaction:
+    """
+    Discord Interaction.
 
-    def __init__(self, _id, application_id, _type, data, guild_id, channel_id, member, user, token):
+    https://discord.com/developers/docs/interactions/slash-commands#interaction
+    """
+
+    def __init__(
+            self,
+            _id: int,
+            application_id: int,
+            _type: int,
+            data: dict,
+            guild_id: int,
+            channel_id: int,
+            member: dict,
+            user: dict,
+            token: str
+    ):
         self.id = _id
         self.application_id = application_id
         self.type = _type
@@ -23,8 +32,10 @@ class Interaction:
 
     @property
     def name(self) -> str:
+        """Get the name of the Interaction command."""
         return self.data.get("name")
 
     @property
     def author(self) -> Member:
+        """Get the author of Interaction."""
         return Member(**self.member)

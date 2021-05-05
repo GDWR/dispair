@@ -5,6 +5,12 @@ from .embed import Embed
 
 
 class Response:
+    """
+    Response to be sent back to Discord.
+
+    This contains the text content, embeds and mention permissions.
+    """
+
     def __init__(self, content: str = "", *, embed: Optional[Embed] = None):
         self.content = content
         self.embeds = []
@@ -12,6 +18,7 @@ class Response:
             self.embeds.append(embed)
 
     def json(self) -> str:
+        """Return the json representation of the Response."""
         return dumps({
             "type": 4,
             "data": {

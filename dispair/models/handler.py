@@ -1,13 +1,22 @@
 import inspect
 from abc import ABC, abstractmethod
+from typing import Callable
 
+from .interaction import Interaction
+from .member import Member
 from .option import Option
 from .response import Response
-from .member import Member
-from .interaction import Interaction
 
 
 class Handler(ABC):
+    """
+    Base class of the Interaction Handlers.
+
+    The functionality for the majority of the handler
+    is defined here. Due to the need to overwrite the
+    handler function using decorators, this is abstract.
+    """
+
     name: str
     description: str
     options: list[Option]
@@ -17,11 +26,11 @@ class Handler(ABC):
         self.description = description
         self.options = []
 
-    def __call__(self, func, *args, **kwargs):
+    def __call__(self, func: Callable, *args, **kwargs) -> None:  # noQA: D102
         self.function = func
         self._create_options()
 
-    def _create_options(self):
+    def _create_options(self) -> None:
         params = inspect.signature(self.function).parameters
 
         for _, hint in params.items():
@@ -52,10 +61,12 @@ class Handler(ABC):
 
     @abstractmethod
     async def handle(self, interaction: Interaction) -> Response:
+        """Replaced with the Interaction Handler when added to a router."""
         raise NotImplementedError()
 
     @property
     def json(self) -> dict:
+        """Return the json form off the Interaction Handler."""
         return {
             "name": self.name,
             "description": self.description,

@@ -17,9 +17,9 @@ class Response:
         if embed:
             self.embeds.append(embed)
 
-    def json(self) -> str:
+    def json(self) -> dict:
         """Return the json representation of the Response."""
-        return dumps({
+        return {
             "type": 4,
             "data": {
                 "tts": False,
@@ -27,4 +27,4 @@ class Response:
                 "embeds": [embed.json() for embed in self.embeds],
                 "allowed_mentions": {"parse": []}
             }
-        })
+        }

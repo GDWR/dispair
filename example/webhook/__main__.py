@@ -1,9 +1,9 @@
 import os
 
-from dispair import Client
+from dispair import WebhookClient as Client
 from dotenv import load_dotenv
 
-from handlers.fun import router
+from example.handlers.fun import router
 
 
 def main() -> None:

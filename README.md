@@ -16,3 +16,5 @@ poetry install
 ```powershell
 poetry run example
 ```
+
+$ \sum_{\forall i}{x_i^{2}} $

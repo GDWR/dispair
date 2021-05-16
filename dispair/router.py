@@ -1,4 +1,7 @@
-from .models import Handler, Interaction, Member, Response
+from dispair.models.handler import Handler
+from dispair.models.interaction import Interaction
+from dispair.models.member import Member
+from dispair.models.response import Response
 
 
 class Router:

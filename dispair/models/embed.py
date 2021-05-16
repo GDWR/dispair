@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from .colour import Colour
+from dispair.colour import Colour
 
 
 class Embed:

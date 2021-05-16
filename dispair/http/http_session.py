@@ -1,5 +1,6 @@
 """
-HTTPSession has been heavily influnced by the works of vcokltfre
+HTTPSession has been heavily influnced by the works of vcokltfre.
+
 https://github.com/vcokltfre/Corded/blob/master/corded/http
 """
 
@@ -8,7 +9,7 @@ import logging
 from asyncio import Lock, AbstractEventLoop
 from typing import Optional, Literal
 
-from aiohttp import ClientResponseError, ClientSession
+from aiohttp import ClientSession, ClientWebSocketResponse
 
 from ..constants import API_VERSION
 
@@ -35,15 +36,18 @@ class ApiPath:
 
     @property
     def url(self) -> str:
+        """Get the absolute url for the api route."""
         return HttpSession.api_base + self.path
 
     @property
     def bucket(self) -> str:
+        """Get the bucket string to use for rate limiting."""
         return "Need to do"  # TODO: This.
 
 
 class HttpSession:
     """HTTPSession containing a aiohttp.ClientSession with Rate Limits."""
+
     api_base = f"https://discord.com/api/v{API_VERSION}"
 
     def __init__(self, bot_token: Optional[str] = None, *, loop: AbstractEventLoop = None):
@@ -75,13 +79,12 @@ class HttpSession:
         request will wait until the Rate Limit has been
         passed.
         """
-
-        async with self.rate_limiter[path.bucket] as lock:
+        async with self.rate_limiter[path.bucket]:
             resp = await self._session.request(method, path.url, **kwargs)
             if resp.content_type == "application/json":
                 return await resp.json()
 
-    async def ws_connect(self, url: str, **kwargs):
+    async def ws_connect(self, url: str, **kwargs) -> ClientWebSocketResponse:
         """Expose the `ws_connect` method of the session cleanly."""
         return await self._session.ws_connect(url, **kwargs)
 

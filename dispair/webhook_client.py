@@ -5,12 +5,15 @@ from aiohttp.web_request import Request
 from nacl.exceptions import BadSignatureError
 from nacl.signing import VerifyKey
 
-from .router import Router
 from .client import Client
-from .models import Response, Interaction, Embed
+from .models import Response, Interaction
+from .router import Router
+from .utils import Embed
 
 
 class WebhookClient(Client):
+    """Client for webhook usage."""
+
     def __init__(self, bot_token: str, application_id: str, application_public_key: str,
                  interaction_endpoint: str = "/interactions", port: int = 80):
         super().__init__(bot_token)

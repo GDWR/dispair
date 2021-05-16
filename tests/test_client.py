@@ -1,9 +1,9 @@
 from json import loads
 import pytest
-from dispair import Router, Interaction, Option
+from dispair import Router
+from dispair.models import Interaction, Option, Response
 
 from stubs.client_stub import ClientStub
-from tests.stubs.request_stub import RequestStub
 
 
 @pytest.fixture(scope="function")
@@ -14,23 +14,11 @@ async def client() -> ClientStub:
     await client.kill()
 
 
-
-@pytest.mark.asyncio
-async def test_ack(client: ClientStub):
-    await client.msg_in.put(RequestStub(type=1))
-
-    msg = await client.msg_out.get()
-    payload = loads(msg.text)
-    assert payload["type"] == 1
-
-
-
 @pytest.mark.asyncio
 async def test_router(client: ClientStub):
     router = Router()
     client.attach_router(router)
     assert len(client._routers) > 0
-
 
 
 @pytest.mark.asyncio
@@ -44,12 +32,24 @@ async def test_router_command(client: ClientStub):
 
     client.attach_router(router)
 
-    await client.msg_in.put(RequestStub(type=2, data={"name": "test"}))
+    await client.msg_in.put(
+        Interaction(
+            _id=1,
+            application_id=1,
+            _type=2,
+            data={
+                "id": 123,
+                "name": "test",
+            },
+            guild_id=1,
+            channel_id=1,
+            member={},
+            user={},
+            token="")
+    )
 
-    resp = await client.msg_out.get()
-    payload = loads(resp.text)
-    assert payload["type"] == 4 and payload["data"]["content"] == message
-
+    resp: Response = await client.msg_out.get()
+    assert resp.json()["data"]["content"] == message
 
 
 @pytest.mark.asyncio
@@ -65,17 +65,25 @@ async def test_router_parameter(client: ClientStub):
     client.attach_router(router)
 
     await client.msg_in.put(
-        RequestStub(
-            type=2,
+        Interaction(
+            _id=1,
+            application_id=1,
+            _type=2,
             data={
+                "id": 123,
                 "name": "test",
-                "options": [{"name": "param", "value": message, "type": 3}]}
-        ))
+                "options": [{"name": "param", "value": message, "type": 3}]
+            },
+            guild_id=1,
+            channel_id=1,
+            member={},
+            user={},
+            token=""
+        )
+    )
 
-    resp = await client.msg_out.get()
-    payload = loads(resp.text)
-    assert payload["type"] == 4 and payload["data"]["content"] == message
-
+    resp: Response = await client.msg_out.get()
+    assert resp.json()["data"]["content"] == message
 
 
 @pytest.mark.asyncio
@@ -91,17 +99,25 @@ async def test_router_option_parameter(client: ClientStub):
     client.attach_router(router)
 
     await client.msg_in.put(
-        RequestStub(
-            type=2,
+        Interaction(
+            _id=1,
+            application_id=1,
+            _type=2,
             data={
+                "id": 123,
                 "name": "test",
-                "options": [{"name": "param", "value": message, "type": 3}]}
-        ))
+                "options": [{"name": "param", "value": message, "type": 3}]
+            },
+            guild_id=1,
+            channel_id=1,
+            member={},
+            user={},
+            token=""
+        )
+    )
 
-    resp = await client.msg_out.get()
-    payload = loads(resp.text)
-    assert payload["type"] == 4 and payload["data"]["content"] == message
-
+    resp: Response = await client.msg_out.get()
+    assert resp.json()["data"]["content"] == message
 
 
 @pytest.mark.asyncio
@@ -117,16 +133,25 @@ async def test_router_int_parameter(client: ClientStub):
     client.attach_router(router)
 
     await client.msg_in.put(
-        RequestStub(
-            type=2,
+        Interaction(
+            _id=1,
+            application_id=1,
+            _type=2,
             data={
+                "id": 123,
                 "name": "test",
-                "options": [{"name": "param", "value": number, "type": 4}]}
-        ))
+                "options": [{"name": "param", "value": number, "type": 4}]
+            },
+            guild_id=1,
+            channel_id=1,
+            member={},
+            user={},
+            token=""
+        )
+    )
 
-    resp = await client.msg_out.get()
-    payload = loads(resp.text)
-    assert payload["type"] == 4 and payload["data"]["content"] == str(number)
+    resp: Response = await client.msg_out.get()
+    assert resp.json()["data"]["content"] == str(number) and resp.json()["type"] == 4
 
 
 
@@ -143,13 +168,22 @@ async def test_router_bool_parameter(client: ClientStub):
     client.attach_router(router)
 
     await client.msg_in.put(
-        RequestStub(
-            type=2,
+        Interaction(
+            _id=1,
+            application_id=1,
+            _type=2,
             data={
+                "id": 123,
                 "name": "test",
-                "options": [{"name": "param", "value": bool_val, "type": 5}]}
-        ))
+                "options": [{"name": "param", "value": bool_val, "type": 5}]
+            },
+            guild_id=1,
+            channel_id=1,
+            member={},
+            user={},
+            token=""
+        )
+    )
 
-    resp = await client.msg_out.get()
-    payload = loads(resp.text)
-    assert payload["type"] == 4 and payload["data"]["content"] == str(bool_val)
+    resp: Response = await client.msg_out.get()
+    assert resp.json()["data"]["content"] == str(bool_val) and resp.json()["type"] == 4

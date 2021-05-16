@@ -4,12 +4,13 @@ from abc import ABC
 from asyncio import AbstractEventLoop
 from json import dumps
 
-from .router import Router
+from dispair.exceptions import HandlerNotDefined
+from dispair.http.http_session import HttpSession, ApiPath
 from dispair.models.interaction import Interaction
 from dispair.models.response import Response
-from dispair.models.embed import Embed
-from dispair.http.http_session import HttpSession, ApiPath
-from dispair.exceptions import HandlerNotDefined
+from dispair.utils.embed import Embed
+from .models import Handler
+from .router import Router
 
 
 class Client(ABC):
@@ -26,6 +27,7 @@ class Client(ABC):
         self._logger.setLevel(log_level)
 
     async def handle(self, interaction: Interaction) -> Response:
+        """Handle an interaction."""
         router = self._routers[0]
         handler = router.handlers.get(interaction.name)
         if handler is None:
@@ -51,7 +53,8 @@ class Client(ABC):
 
         self._routers.append(router)
 
-    async def _register_handler(self, handler) -> None:
+    async def _register_handler(self, handler: Handler) -> None:
+        """Register a handler with the client for incoming message to be handled by."""
         await self._http_session.request(
             "POST",
             ApiPath(f"applications/{self.app_id}/guilds/566407576686952480/commands"),  # TODO: Dynamic guild ids
@@ -59,8 +62,10 @@ class Client(ABC):
         )
 
     def run(self) -> None:
+        """Begin running the bot, this will block until the client is stopped."""
         raise NotImplementedError()
 
     async def shutdown(self) -> None:
+        """Shutdown the bot, closing any resources being currently used."""
         self._logger.info("Client shutting down.")
         await self._http_session.kill()

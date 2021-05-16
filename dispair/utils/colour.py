@@ -57,4 +57,5 @@ class Colour:
         """Pre-made Blue Colour #0000FF, (0, 0, 255), 255."""
         return Colour(0, 0, 255)
 
+
 Color = Colour

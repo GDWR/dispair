@@ -1,4 +1,3 @@
-from .embed import Embed
 from .handler import Handler
 from .interaction import Interaction
 from .member import Member

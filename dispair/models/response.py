@@ -1,7 +1,6 @@
-from json import dumps
 from typing import Optional
 
-from .embed import Embed
+from dispair.utils import Embed
 
 
 class Response:

@@ -1,7 +1,8 @@
 import random
 
-from dispair import Router, Interaction, Option, Embed
-from dispair.models import Member
+from dispair import Router
+from dispair.models import Interaction, Option, Member
+from dispair.utils import Embed
 
 router = Router()
 

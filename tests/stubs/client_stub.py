@@ -1,24 +1,24 @@
 import asyncio
 from asyncio import Queue
 
-from dispair import Client
-from tests.stubs.verifykey_stub import VerifyKeyStub
+from dispair.client import Client
+from dispair.models import Interaction
 
 
 class ClientStub(Client):
     def __init__(self):
-        super().__init__("", "", "")
+        super().__init__("", "")
         self.msg_in = Queue()
         self.msg_out = Queue()
 
     def run(self) -> None:
-        self._verify_key = VerifyKeyStub()
-
         async def _main_loop():
             while True:
                 try:
                     msg = await self.msg_in.get()
-                    resp = await self._interaction(msg)
+                    if not isinstance(msg, Interaction):
+                        raise TypeError("Received a message that wasn't an interaction.")
+                    resp = await self.handle(msg)
                     await self.msg_out.put(resp)
                 except Exception as e:
                     break

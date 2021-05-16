@@ -4,14 +4,16 @@ import platform
 
 from aiohttp import WSMsgType
 
-from dispair.models import Interaction
-from dispair.http import ApiPath
 from dispair.client import Client
-from dispair.exceptions import HandlerNotDefined
 from dispair.constants import API_VERSION
+from dispair.exceptions import HandlerNotDefined
+from dispair.http import ApiPath
+from dispair.models import Interaction
 
 
 class GatewayClient(Client):
+    """Client for usage with the DiscordAPI Gateway."""
+
     url: str
     shards: int
     session_start_limit: dict
@@ -42,6 +44,12 @@ class GatewayClient(Client):
         })
 
     async def handle_loop(self) -> None:
+        """
+        The handle loop will start by performing the required handshake and identification.
+
+        Then this loop will wait on a new message, check if it is a interaction and act on it.
+        If there isn't an interaction a Heartbeat will be sent instead.
+        """
         await self._perform_handshake()
         await self._identify()
 
@@ -87,11 +95,13 @@ class GatewayClient(Client):
         self._logger.error("Channel was closed")
 
     async def connect_to_gateway(self) -> None:
+        """Connect to the gateway via Websocket."""
         self._logger.debug("Connecting to Gateway")
         self._ws_session = await self._http_session.ws_connect(self.url + f"/?v={API_VERSION}&encoding=json")
         self._logger.debug("Connected to Gateway")
 
     async def get_gateway(self) -> None:
+        """Request the current gateway endpoint and meta data from DiscordAPI."""
         self._logger.debug("Requesting Gateway")
         req = await self._http_session.request("GET", ApiPath("/gateway/bot"))
         self._logger.debug("Received Gateway")
@@ -107,9 +117,11 @@ class GatewayClient(Client):
         await self._shutdown()
 
     async def _shutdown(self) -> None:
+        """Shut down the bot, closing the http session and other open resources."""
         await super().shutdown()
 
     def run(self) -> None:
+        """Begin the bot, this will block until the bot has stopped."""
         self._logger.log(logging.DEBUG, "Starting to run GatewayClient")
 
         asyncio.get_event_loop().run_until_complete(self._startup())

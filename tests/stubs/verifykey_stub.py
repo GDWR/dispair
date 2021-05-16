@@ -1,3 +1,0 @@
-class VerifyKeyStub:
-    def verify(self, *args, **kwargs):
-        ...

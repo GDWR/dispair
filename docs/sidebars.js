@@ -1,6 +1,6 @@
 /**
  * Creating a sidebar enables you to:
- - create an ordered group of docs
+ - create an ordered group of pages
  - render a sidebar for each doc of that group
  - provide next/previous navigation
 
@@ -10,7 +10,7 @@
  */
 
 module.exports = {
-    // By default, Docusaurus generates a sidebar from the docs folder structure
+    // By default, Docusaurus generates a sidebar from the pages folder structure
     tutorialSidebar: ['getting-started'],
 
     // But you can create a sidebar manually

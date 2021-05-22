@@ -43,6 +43,6 @@ if __name__ == "__main__":
 In this quickstart example, we:
 - Create a `dispair.Router` and create an interaction route
 - Define a `dispair.WebhookClient` and pass in our necessary environment variables: our discord `BOT_TOKEN`,
-our discord `APP_ID`, and our discord `APP_PUBLIC_KEY`, all of which we can find at the 
+our discord `APP_ID`, and our discord `APP_PUBLIC_KEY`, all of which we can find at the
 [Discord Developer Portal](https://discord.com/developers/applications)
 - Run our client

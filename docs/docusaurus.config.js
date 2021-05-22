@@ -3,7 +3,7 @@ module.exports = {
     title: 'Dispair',
     tagline: 'A webhook client for Discord Interactions.',
     url: 'https://gdwr.github.io/dispair/',
-    baseUrl: '/',
+    baseUrl: '/dispair/',
     onBrokenLinks: 'throw',
     onBrokenMarkdownLinks: 'warn',
     favicon: 'img/favicon.ico',
@@ -67,7 +67,7 @@ module.exports = {
                     sidebarPath: require.resolve('./sidebars.js'),
                     // Please change this to your repo.
                     editUrl:
-                        'https://github.com/GDWR/dispair/edit/master/website',
+                        'https://github.com/GDWR/dispair/edit/main/docs',
                 },
                 theme: {
                     customCss: require.resolve('./src/css/custom.css'),

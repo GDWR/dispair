@@ -3,7 +3,7 @@
 ## Installation
 _Prerequisite: [Install Python 3.8+](https://www.python.org/) on your local environment._
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install docrunner.
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install dispair.
 
 ```cmd
 pip install dispair

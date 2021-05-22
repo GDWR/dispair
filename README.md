@@ -1,5 +1,6 @@
 # Dispair
 
+[Docs](https://gdwr.github.io/dispair/) \
 Discord webhook framework for interactions.
 
 ## Local Development

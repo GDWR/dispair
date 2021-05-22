@@ -2,7 +2,7 @@
 module.exports = {
     title: 'Dispair',
     tagline: 'A webhook client for Discord Interactions.',
-    url: 'https://your-docusaurus-test-site.com',
+    url: 'https://gdwr.github.io/dispair/',
     baseUrl: '/',
     onBrokenLinks: 'throw',
     onBrokenMarkdownLinks: 'warn',
@@ -11,7 +11,7 @@ module.exports = {
     projectName: 'dispair', // Usually your repo name.
     themeConfig: {
         navbar: {
-            title: 'Docrunner',
+            title: 'Dispair',
             logo: {
                 alt: 'My Site Logo',
                 src: 'img/logo.svg',

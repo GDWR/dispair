@@ -7,12 +7,12 @@ on:
   push:
     branches: [ master ]
     paths-ignore:
-      - 'website/*'
+      - 'docs/*'
 
   pull_request:
     branches: [ master ]
     paths-ignore:
-      - 'website/*'
+      - 'docs/*'
 
 jobs:
   build:

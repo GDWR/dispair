@@ -1,0 +1,1 @@
+(self.webpackChunkwebsite=self.webpackChunkwebsite||[]).push([[53],{9054:function(e){"use strict";e.exports=JSON.parse('{"pluginId":"default","version":"current","label":"Next","isLast":true,"docsSidebars":{"tutorialSidebar":[{"type":"link","label":"Getting started","href":"/docs/getting-started"}]},"permalinkToSidebar":{"/docs/getting-started":"tutorialSidebar"}}')}}]);

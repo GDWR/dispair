@@ -38,7 +38,7 @@ module.exports = {
                     items: [
                         {
                             label: 'Tutorial',
-                            to: '/pages/getting-started',
+                            to: '/docs/getting-started',
                         },
                     ],
                 },

@@ -10,7 +10,7 @@
  */
 
 module.exports = {
-    // By default, Docusaurus generates a sidebar from the pages folder structure
+    // By default, Docusaurus generates a sidebar from the docs folder structure
     tutorialSidebar: ['getting-started'],
 
     // But you can create a sidebar manually

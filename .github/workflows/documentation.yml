@@ -3,11 +3,11 @@ name: documentation
 on:
   pull_request:
     branches: [ main ]
-    paths: 
+    paths:
      - docs
   push:
     branches: [ main ]
-    paths: 
+    paths:
      - docs
 
 jobs:

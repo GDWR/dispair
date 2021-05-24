@@ -23,3 +23,10 @@ repos:
         types: [python]
         exclude: ^(tests|example)/*
         require_serial: true
+      - id: docrunner
+        name: Docrunner
+        description: This hook runs docrunner within our project's root directory, targeting docs/docs.
+        entry: poetry run docrunner run
+        language: system
+        pass_filenames: false
+        require_serial: true

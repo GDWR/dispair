@@ -14,6 +14,9 @@ pip install dispair
 ```python
 from dispair import Router
 from dispair import WebhookClient
+from dispair.models import Interaction
+import os
+from dotenv import load_dotenv
 
 router = Router()
 

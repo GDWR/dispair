@@ -20,12 +20,12 @@ class Interaction:
             user: dict,
             token: str
     ):
-        self.id = _id
-        self.application_id = application_id
-        self.type = _type
+        self.id = int(_id)
+        self.application_id = int(application_id)
+        self.type = int(_type)
         self.data = data
-        self.guild_id = guild_id
-        self.channel_id = channel_id
+        self.guild_id = int(guild_id)
+        self.channel_id = int(channel_id)
         self.member = member
         self.user = user
         self.token = token

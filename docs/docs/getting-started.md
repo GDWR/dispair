@@ -12,13 +12,16 @@ pip install dispair
 ## QuickStart
 
 ```python
+import random
+
 from dispair import Router
-from dispair import WebhookClient
+from dispair import GatewayClient
 from dispair.models import Interaction
 import os
 from dotenv import load_dotenv
 
 router = Router()
+
 
 @router.interaction(name="8ball", description="Let the 8ball take the wheel")
 async def _8ball(inter: Interaction):
@@ -29,10 +32,9 @@ def main() -> None:
     if os.getenv("ENVIRONMENT") is None:
         load_dotenv(dotenv_path='.env')
 
-    client = WebhookClient(
+    client = GatewayClient(
         os.getenv("BOT_TOKEN"),
         os.getenv("APP_ID"),
-        os.getenv("APP_PUBLIC_KEY"),
     )
 
     client.attach_router(router)

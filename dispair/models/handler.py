@@ -1,6 +1,5 @@
-import inspect
 from abc import ABC, abstractmethod
-from typing import Callable
+from typing import Callable, get_type_hints, Union, get_origin, get_args
 
 from .interaction import Interaction
 from .member import Member
@@ -35,31 +34,39 @@ class Handler(ABC):
         self._create_options()
 
     def _create_options(self) -> None:
-        params = inspect.signature(self.function).parameters
+        hints = get_type_hints(self.function)
 
-        for _, hint in params.items():
-            if hint.annotation == Interaction:
+        for name, hint in hints.items():
+            if hint is Interaction:
                 continue
 
-            if isinstance(hint.default, Option):
+            if isinstance(hint, Option):
                 option = hint.default
                 if option.name is None:
                     option.name = str(hint.name)
                 if option.description is None:
                     option.description = " "
             else:
-                option = Option(name=hint.name, desc=" ")
+                option = Option(name=name, desc=" ")
 
-            if hint.annotation is str:
+            if get_origin(hint) is Union and type(None) in get_args(
+                    hint):  # Check if the parameter is typed as Optional
+                option.required = False
+                args = [arg for arg in get_args(hint) if arg != type(None)]
+                if len(args) > 1:
+                    raise TypeError(f"Cannot type hint parameter as: {', '.join(*args)}")
+                hint = args[0]
+
+            if hint is str:
                 option.type = 3
-            elif hint.annotation is int:
+            elif hint is int:
                 option.type = 4
-            elif hint.annotation is bool:
+            elif hint is bool:
                 option.type = 5
-            elif hint.annotation is Member:
+            elif hint is Member:
                 option.type = 6
             else:
-                raise ValueError(f"Cannot convert parameter of type: {hint.annotation}")
+                raise ValueError(f"Cannot convert parameter of type: {hint}")
 
             self.options.append(option)
 
@@ -70,6 +77,7 @@ class Handler(ABC):
 
     @property
     def is_global(self) -> bool:
+        """Get if the Handler is registered Globally or not."""
         return self._global
 
     @property

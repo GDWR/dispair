@@ -16,10 +16,13 @@ from .missing_handler import MissingHandler
 from .models import Handler, Option
 from .router import Router
 
+MISSING_HANDLER = MissingHandler()
+
 
 @dataclass
 class Command:
     """A registered command gathered from the DiscordAPI."""
+
     id: int
     application_id: int
     name: str
@@ -31,6 +34,7 @@ class Command:
 
     @property
     def is_global(self) -> bool:
+        """Return if the command is registered globally."""
         return self.guild_id is None
 
     def __hash__(self) -> int:
@@ -44,7 +48,7 @@ class Client(ABC):
             self,
             bot_token: str,
             app_id: str, *,
-            missing_handler: MissingHandler = MissingHandler(),
+            missing_handler: MissingHandler = MISSING_HANDLER,
             log_level: int = 20,
             loop: AbstractEventLoop = None
     ):
@@ -72,14 +76,19 @@ class Client(ABC):
 
     @property
     def handlers(self) -> ChainMap[Union[str, int], Union[Handler, dict[str, Handler]]]:
+        """Get the mapping for all handler."""
         return ChainMap(self._global_handlers, self._guild_handlers)
 
     @property
     def commands(self) -> ChainMap[Union[str, int], Union[Command, dict[str, Command]]]:
+        """Get the mapping of all commands."""
         return ChainMap(self._global_commands, self._guild_commands)
 
     async def handle(self, interaction: Interaction) -> Response:
         """Handle an interaction."""
+        if interaction.guild_id not in self._known_guilds:
+            await self._sync_guild_commands(interaction.guild_id)
+            self._known_guilds.add(interaction.guild_id)
 
         if guild_handlers := self.handlers.get(interaction.guild_id):
             handler = guild_handlers.get(interaction.name)
@@ -158,7 +167,7 @@ class Client(ABC):
         if guild is not None:
             await self._http_session.request(
                 "POST",
-                ApiPath("applications/{app_id}/guilds/{guild}/commands", app_id=self.app_id, guild=guild),
+                ApiPath("applications/{app_id}/guilds/{guild_id}/commands", app_id=self.app_id, guild_id=guild),
                 json=handler.json
             )
         else:
@@ -180,9 +189,9 @@ class Client(ABC):
             await self._http_session.request(
                 "DELETE",
                 ApiPath(
-                    "applications/{app_id}/guilds/{guild}/commands/{command_id}",
+                    "applications/{app_id}/guilds/{guild_id}/commands/{command_id}",
                     app_id=self.app_id,
-                    guild=guild,
+                    guild_id=guild,
                     command_id=command.id
                 ),
             )
@@ -206,7 +215,7 @@ class Client(ABC):
     async def _fetch_guild_commands(self, guild: int) -> dict[str, Command]:
         resp = await self._http_session.request(
             "GET",
-            ApiPath("/applications/{app_id}/guilds/{guild}/commands", app_id=self.app_id, guild=guild),
+            ApiPath("/applications/{app_id}/guilds/{guild_id}/commands", app_id=self.app_id, guild_id=guild),
         )
         for command in [Command(**data) for data in resp]:
             self._guild_commands[guild][command.name] = command
@@ -221,13 +230,11 @@ class Client(ABC):
 
     def run(self) -> None:
         """
-        Begin running the bot,
+        Begin running the bot.
+
         This base class will register all attached routers/handlers with the DiscordAPI.
-        It will then Remove any unregistered handlers.
-
-        this will block until the client is stopped.
+        It will then Remove any unregistered handlers. This will block until the client is stopped.
         """
-
         loop = asyncio.get_event_loop()
 
         # Startup requests
@@ -235,7 +242,7 @@ class Client(ABC):
         loop.run_until_complete(self._fetch_all_guild_commands())
 
         for router in self._routers:
-            for name, handler in router.handlers.items():
+            for handler in router.handlers.values():
                 self._logger.debug(f"Ensuring that {handler.name} command is assigned.")
                 try:
                     loop.run_until_complete(self._ensure_handler_registered(handler))

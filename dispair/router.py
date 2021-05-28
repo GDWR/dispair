@@ -38,7 +38,7 @@ class Router:
                         elif option["type"] == 5:
                             options[option["name"]] = bool(option["value"])
                         elif option["type"] == 6:
-                            options[option["name"]] = await Member.from_userid(option["value"])
+                            options[option["name"]] = await Member.from_userid(interaction.guild_id, option["value"])
 
                 return await self.function(interaction, **options)
 

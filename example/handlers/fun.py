@@ -1,7 +1,8 @@
 import random
+from typing import Optional
 
 from dispair import Router
-from dispair.models import Interaction, Option
+from dispair.models import Interaction, Option, Member
 from dispair.utils import Embed
 
 router = Router()
@@ -66,7 +67,7 @@ async def owoify(inter: Interaction, text: str = Option(desc='Text to Owoify')):
 @router.interaction(name="embed", description="Embed your message.", _global=False, guilds=[566407576686952480])
 async def embed(inter: Interaction,
                 title: str = Option(desc="Title for the embed"),
-                description: str = Option(desc="Embed Description", required=False)):
+                description: Optional[str] = Option(desc="Embed Description")):
     return Embed(title=title, description=description)
 
 
@@ -88,9 +89,8 @@ async def guess_the_number(inter: Interaction, guess: int = Option(desc="Guess t
 async def boolean_example(inter: Interaction, guess: bool = Option(desc="Input")):
     return guess
 
-# @router.interaction(name="UserId", description="Get the user id of a user", _global=False, guilds=[566407576686952480])
-# async def user_id(inter: Interaction, user: Member = Option(desc="Member to get the ID of", required=False)):
-#     if user:
-#         return user.id
-#     else:
-#         return inter.member.user["id"]
+
+@router.interaction(name="Mention", description="Mention a user", _global=False, guilds=[566407576686952480])
+async def mention(inter: Interaction, user: Optional[Member] = Option(desc="Member to get the ID of")):
+    user = user or inter.author
+    return user.mention

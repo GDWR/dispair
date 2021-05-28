@@ -17,6 +17,8 @@ from ..constants import API_VERSION
 
 
 class LockContext:
+    """Context manager for RateLimiting lock, Allows for releasing after `n` time."""
+
     def __init__(self, lock: Lock):
         self._logger = logging.getLogger("Lock")
         self._logger.setLevel(logging.DEBUG)
@@ -75,6 +77,7 @@ class ApiPath:
 
     def __init__(self, path: str, **params):
         self.path = path.format(**params)
+        self._raw_path = path
         self.params = params
 
     @property
@@ -85,12 +88,13 @@ class ApiPath:
     @property
     def bucket(self) -> str:
         """Get the bucket string to use for rate limiting."""
-        # Key ratelimit handling parameters
         guild_id = self.params.get("guild_id", 0)
         channel_id = self.params.get("channel_id", 0)
         webhook_id = self.params.get("webhook_id", 0)
+        interaction_id = self.params.get("interaction_id", 0)
+        interaction_token = self.params.get("interaction_token", 0)
 
-        return f"{guild_id}-{channel_id}-{webhook_id}::{self.path}"
+        return f"{guild_id}-{channel_id}-{webhook_id}-{interaction_id}-{interaction_token}::{self._raw_path}"
 
 
 class HttpSession:
@@ -139,7 +143,7 @@ class HttpSession:
             try:
                 resp.raise_for_status()
             except ClientResponseError as err:
-                self._logger.error(f"{err.message}:\n\t{err}")
+                self._logger.error(str(err))
                 raise err
 
             remaining = resp.headers.get("x-ratelimit-remaining", "1")
@@ -148,8 +152,7 @@ class HttpSession:
                 reset = resp.headers["x-ratelimit-reset"]
                 await lock.release_at(float(reset))
 
-        if resp.content_type == "application/json":
-            return await resp.json()
+        return content
 
     async def ws_connect(self, url: str, **kwargs) -> ClientWebSocketResponse:
         """Expose the `ws_connect` method of the session cleanly."""

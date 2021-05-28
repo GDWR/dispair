@@ -1,3 +1,5 @@
+from typing import Optional
+
 from dispair.models.handler import Handler
 from dispair.models.interaction import Interaction
 from dispair.models.member import Member
@@ -14,8 +16,12 @@ class Router:
         """Decorator to create a interaction handler."""
         return self.interaction(*args, **kwargs)
 
-    def interaction(self, name: str, description: str) -> Handler:
+    def interaction(self, name: str, description: str, *, _global: bool = True,
+                    guilds: Optional[list[int]] = None) -> Handler:
         """Create a Interaction Handler."""
+        if guilds is None:
+            guilds = []
+
         name = name.lower()
 
         class Handle(Handler):
@@ -36,6 +42,11 @@ class Router:
 
                 return await self.function(interaction, **options)
 
-        handler = Handle(name, description)
+        handler = Handle(
+            name,
+            description,
+            _global,
+            guilds
+        )
         self.handlers[name] = handler
         return handler

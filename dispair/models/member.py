@@ -14,7 +14,7 @@ class Member:
     avatar: str
 
     def __init__(self, **kwargs):
-        print(kwargs)
+        print("Member ", kwargs)
 
     @classmethod
     async def from_userid(cls, guild_id: int, user_id: int) -> Member:

@@ -1,19 +1,20 @@
 import random
 
 from dispair import Router
-from dispair.models import Interaction, Option, Member
+from dispair.models import Interaction, Option
 from dispair.utils import Embed
 
 router = Router()
 
 
-@router.interaction(name="8ball", description="Let the 8ball take the wheel")
+@router.interaction(name="8ball", description="Let the 8ball take the wheel", _global=False,
+                    guilds=[566407576686952480])
 async def _8ball(inter: Interaction):
     answer = random.choice(["Yes", "No", "Maybe"])
     return f"> {answer}"
 
 
-@router.interaction(name="uwuify", description="Uwuify a Message.")
+@router.interaction(name="uwuify", description="Uwuify a Message.", _global=False, guilds=[566407576686952480])
 async def uwuify(inter: Interaction, text: str):
     UWU_WORDS = {
         "fi": "fwi",
@@ -39,7 +40,7 @@ async def uwuify(inter: Interaction, text: str):
     return f">>> {text}"
 
 
-@router.interaction(name="owoify", description="Owoify a Message.")
+@router.interaction(name="owoify", description="Owoify a Message.", _global=False, guilds=[566407576686952480])
 async def owoify(inter: Interaction, text: str = Option(desc='Text to Owoify')):
     OWO_WORDS = {
         "m": "mw",
@@ -62,14 +63,15 @@ async def owoify(inter: Interaction, text: str = Option(desc='Text to Owoify')):
     return f">>> {text}"
 
 
-@router.interaction(name="embed", description="Embed your message.")
+@router.interaction(name="embed", description="Embed your message.", _global=False, guilds=[566407576686952480])
 async def embed(inter: Interaction,
                 title: str = Option(desc="Title for the embed"),
                 description: str = Option(desc="Embed Description", required=False)):
     return Embed(title=title, description=description)
 
 
-@router.interaction(name="GuessTheNumber", description="See if you can guess the number, Between (1 - 20)")
+@router.interaction(name="GuessTheNumber", description="See if you can guess the number, Between (1 - 20)",
+                    _global=False, guilds=[566407576686952480])
 async def guess_the_number(inter: Interaction, guess: int = Option(desc="Guess the number")):
     if 0 >= guess or guess >= 20:
         return "> Please make your guess between 1 - 20"
@@ -81,12 +83,12 @@ async def guess_the_number(inter: Interaction, guess: int = Option(desc="Guess t
         return f"> You didn't guess the number, it was {random_num}"
 
 
-@router.interaction(name="Boolean", description="Example of a boolean Input")
+@router.interaction(name="Boolean", description="Example of a boolean Input", _global=False,
+                    guilds=[566407576686952480])
 async def boolean_example(inter: Interaction, guess: bool = Option(desc="Input")):
     return guess
 
-
-# @router.interaction(name="UserId", description="Get the user id of a user")
+# @router.interaction(name="UserId", description="Get the user id of a user", _global=False, guilds=[566407576686952480])
 # async def user_id(inter: Interaction, user: Member = Option(desc="Member to get the ID of", required=False)):
 #     if user:
 #         return user.id

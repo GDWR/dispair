@@ -19,12 +19,16 @@ class Handler(ABC):
 
     name: str
     description: str
+    _global: bool
     options: list[Option]
+    guilds: list[int]
 
-    def __init__(self, name: str, description: str):
+    def __init__(self, name: str, description: str, _global: bool, guilds: list[int]):
         self.name = name
         self.description = description
         self.options = []
+        self._global = _global
+        self.guilds = guilds
 
     def __call__(self, func: Callable, *args, **kwargs) -> None:  # noQA: D102
         self.function = func
@@ -63,6 +67,10 @@ class Handler(ABC):
     async def handle(self, interaction: Interaction) -> Response:
         """Replaced with the Interaction Handler when added to a router."""
         raise NotImplementedError()
+
+    @property
+    def is_global(self) -> bool:
+        return self._global
 
     @property
     def json(self) -> dict:

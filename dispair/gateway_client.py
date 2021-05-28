@@ -72,22 +72,25 @@ class GatewayClient(Client):
                             user=data["member"]["user"],
                             token=data["token"],
                         )
-                        self._logger.debug(f"Received interaction: {interaction}")
+                        self._logger.debug(f"Received interaction for: {interaction.name}")
                         try:
                             response = await self.handle(interaction)
                         except HandlerNotDefined:
                             self._logger.info(f"No handler defined for interaction: {interaction.name}")
                             continue
-                        self._logger.debug(f"Handled with response: {response}")
 
                         await self._http_session.request(
                             "POST",
-                            ApiPath(f"/interactions/{interaction.id}/{interaction.token}/callback"),
+                            ApiPath(
+                                "/interactions/{interaction_id}/{interaction_token}/callback",
+                                interaction_id=interaction.id,
+                                interaction_token=interaction.token,
+                            ),
                             json=response.json()
                         )
-
                 elif msg.type == WSMsgType.CLOSED:
                     break
+
             except asyncio.TimeoutError:
                 self._logger.info("Sending heartbeat message")
                 await self._ws_session.send_json({"op": 1})
@@ -122,6 +125,7 @@ class GatewayClient(Client):
 
     def run(self) -> None:
         """Begin the bot, this will block until the bot has stopped."""
-        self._logger.log(logging.DEBUG, "Starting to run GatewayClient")
+        super().run()
 
+        self._logger.log(logging.DEBUG, "Starting to run GatewayClient")
         asyncio.get_event_loop().run_until_complete(self._startup())
